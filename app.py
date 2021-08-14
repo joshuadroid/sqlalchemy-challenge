@@ -18,7 +18,7 @@ Station = Base.classes.station
 
 
 app = Flask(__name__)
-
+session = Session(engine)
 
 @app.route("/")
 def homepage():
@@ -38,7 +38,7 @@ def homepage():
 @app.route("/api/v1.0/precipitation")
 def precipitation():
 
-    session = Session(engine)
+
 
     query_date = dt.date(2017, 8, 23) - dt.timedelta(days=365)
     results = session.query(Measurement.date, Measurement.prcp).\
@@ -53,10 +53,22 @@ def precipitation():
         precip_dict['prcp'] = prcp
         all_precips.append(precip_dict)
     
+    print("Server returned request for /precipitation")
     return jsonify(all_precips)
 
 
-# @app.route("/api/v1.0/stations")
+@app.route("/api/v1.0/stations")
+def stations():
+
+    station_list = []
+    results = session.query(Station.station, Station.name).all()
+    for id, name in results:
+        station_dict = {}
+        station_dict['id'] = id
+        station_dict['name'] = name
+        station_list.append(station_dict)
+
+    return jsonify(station_list)
 
 
 # @app.route("/api/v1.0/tobs")
